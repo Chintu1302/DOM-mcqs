@@ -41,14 +41,8 @@ export function shuffle(arr) {
 export function filterPool(mcqs, chapterFocus, difficulty) {
   let pool = mcqs.slice();
   if (chapterFocus) {
-    const pipe = chapterFocus.indexOf("|");
-    const chPart = pipe === -1 ? chapterFocus : chapterFocus.slice(0, pipe);
-    const conceptPart = pipe === -1 ? "" : chapterFocus.slice(pipe + 1);
-    const n = parseInt(chPart, 10);
+    const n = parseInt(chapterFocus, 10);
     pool = pool.filter((q) => q.chapter === n);
-    if (conceptPart) {
-      pool = pool.filter((q) => q.chapterConcept === conceptPart);
-    }
   }
   if (difficulty !== "all") {
     pool = pool.filter((q) => q.difficulty === difficulty);

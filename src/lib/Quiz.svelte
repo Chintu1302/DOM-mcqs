@@ -11,47 +11,52 @@
   /** @type {typeof mcqs} */
   const MCQS = mcqs;
 
-  const CHAPTER_2_TITLE = "Selecting DOM Elements";
-  const CHAPTER_3_TITLE = "Reading and Modifying Elements";
-
-  /** Topic labels for Ch.2 — exact `chapterConcept` strings from mcqData.json */
-  const SELECTING_DOM_TOPICS = [
-    "getElementById",
-    "getElementsByClassName",
-    "getElementsByTagName",
-    "querySelector",
-    "querySelectorAll",
-    "CSS selector syntax",
-    "When to use which selector",
-    "NodeList vs HTMLCollection vs Array",
-    "Performance considerations",
+  /** [chapterNumber, title] — matches `chapterTitle` in mcqData.json */
+  const CHAPTER_OPTIONS = [
+    [1, "HTML and the DOM Tree"],
+    [2, "Selecting DOM Elements"],
+    [3, "Reading and Modifying Elements"],
+    [4, "Creating and Removing Elements"],
+    [5, "Event Handling Basics"],
+    [6, "Form Handling and Validation"],
+    [7, "Dynamic Lists and Conditional Display"],
+    [8, "Building a Todo App (Vanilla JS)"],
+    [9, "The Call Stack and Event Loop"],
+    [10, "Callbacks and Asynchronous Patterns"],
+    [11, "Promises"],
+    [12, "Async/Await"],
+    [13, "Fetch API and HTTP Requests"],
+    [14, "Building a Data-Driven App"],
+    [15, "The Problem with Manual DOM Manipulation"],
+    [16, "String Templates and Parsing"],
+    [17, "Template Syntax Design"],
+    [18, "Template Parser (Lexer and AST)"],
+    [19, "Template Compiler (AST to JavaScript)"],
+    [20, "Rendering System V1"],
+    [21, "The Reactivity Problem"],
+    [22, "Reactive Variables (Getters/Setters)"],
+    [23, "Dependency Tracking"],
+    [24, "Efficient Updates (Fine-Grained Reactivity)"],
+    [25, "Batching and Scheduling Updates"],
+    [26, "Component Concept"],
+    [27, "Props (Parent to Child Communication)"],
+    [28, "Events (Child to Parent Communication)"],
+    [29, "Slots (Content Projection)"],
+    [30, "Component Lifecycle"],
+    [31, "Component Composition Patterns"],
+    [32, "Local State vs Shared State"],
+    [33, "Store Pattern (Observable State)"],
+    [34, "Context API"],
+    [35, "State Management Patterns"],
+    [36, "Client-Side Routing"],
+    [37, "Transitions and Animations"],
+    [38, "Virtual DOM (Comparison)"],
+    [39, "SSR and Hydration"],
+    [40, "Build Tools and Production"],
   ];
 
-  /** Topic labels for Ch.3 — order matches `chapterConcept` in mcqData.json */
-  const READING_MODIFYING_TOPICS = [
-    "textContent vs innerText vs innerHTML",
-    "Reading element content",
-    "Changing text content",
-    "Changing HTML content",
-    "Element attributes (setAttribute, getAttribute, removeAttribute)",
-    "Direct property access (id, className, value)",
-    "style property (inline styles)",
-    "classList (add, remove, toggle, contains)",
-    "Data attributes (dataset)",
-  ];
-
-  /** @type {'' | '1' | '2' | '3'} */
-  let selectedChapter = $state("");
-  /** `chapterConcept` substring when narrowing ch.2 or ch.3; empty means all topics in chapter */
-  let selectedTopic = $state("");
-
-  const chapterFocus = $derived.by(() => {
-    const ch = selectedChapter;
-    const t = selectedTopic;
-    if (!ch) return "";
-    if ((ch === "2" || ch === "3") && t) return ch + "|" + t;
-    return ch;
-  });
+  /** @type {string} */
+  let chapterFocus = $state("");
 
   let difficulty = $state("all");
   /** @type {typeof mcqs} */
@@ -96,7 +101,7 @@
 <div class="wrap">
   <h1>JavaScript &amp; DOM — MCQ Quiz</h1>
   <p class="sub">
-    Chapters 1–10 · Optional chapter focus · Difficulty · Submit to see score (no
+    Chapters 1–40 · Optional chapter focus · Difficulty · Submit to see score (no
     spoilers while you work).
   </p>
 
@@ -106,44 +111,15 @@
       <select
         id="chapter-focus"
         class="select-chapter"
-        bind:value={selectedChapter}
+        bind:value={chapterFocus}
         aria-label="Chapter focus"
-        onchange={() => {
-          selectedTopic = "";
-        }}
       >
         <option value="">All chapters</option>
-        <option value="1">Ch. 1 — HTML and the DOM Tree</option>
-        <option value="2">Ch. 2 — Selecting DOM Elements</option>
-        <option value="3">Ch. 3 — Reading and Modifying Elements</option>
+        {#each CHAPTER_OPTIONS as [num, title]}
+          <option value={String(num)}>Ch. {num} — {title}</option>
+        {/each}
       </select>
     </div>
-    {#if selectedChapter === "2" || selectedChapter === "3"}
-      <div class="topic-field">
-        <label for="topic-focus"
-          >Topic{#if selectedChapter === "2"} ({CHAPTER_2_TITLE}){:else} ({CHAPTER_3_TITLE}){/if}</label
-        ><br />
-        <select
-          id="topic-focus"
-          class="select-topic"
-          bind:value={selectedTopic}
-          aria-label="Topic within selected chapter"
-        >
-          <option value=""
-            >All topics — {selectedChapter === "2" ? CHAPTER_2_TITLE : CHAPTER_3_TITLE}</option
-          >
-          {#if selectedChapter === "2"}
-            {#each SELECTING_DOM_TOPICS as topic}
-              <option value={topic}>{CHAPTER_2_TITLE} · {topic}</option>
-            {/each}
-          {:else}
-            {#each READING_MODIFYING_TOPICS as topic}
-              <option value={topic}>{CHAPTER_3_TITLE} · {topic}</option>
-            {/each}
-          {/if}
-        </select>
-      </div>
-    {/if}
     <div>
       <label for="difficulty">Difficulty</label><br />
       <select id="difficulty" bind:value={difficulty} aria-label="Filter by difficulty">
@@ -301,18 +277,8 @@
     cursor: pointer;
   }
 
-  .topic-field {
-    flex: 1 1 14rem;
-    min-width: 0;
-  }
-
   select.select-chapter {
-    min-width: min(100%, 20rem);
-  }
-
-  select.select-topic {
-    min-width: min(100%, 22rem);
-    width: 100%;
+    min-width: min(100%, 28rem);
   }
 
   button {
