@@ -37,15 +37,55 @@ export function shuffle(arr) {
   return a;
 }
 
+/** @param {Mcq} q */
+export function shuffleQuestionOptions(q) {
+  const optionOrder = q.options.map((_, idx) => idx);
+  const shuffledOrder = shuffle(optionOrder);
+  const remap = new Map(shuffledOrder.map((oldIdx, newIdx) => [oldIdx, newIdx]));
+
+  const normalizedCorrect = Array.isArray(q.correctIndices)
+    ? q.correctIndices
+    : [q.correctIndices];
+
+  return {
+    ...q,
+    options: shuffledOrder.map((oldIdx) => q.options[oldIdx]),
+    correctIndices: normalizedCorrect
+      .map((oldIdx) => remap.get(oldIdx))
+      .filter((idx) => idx !== undefined),
+  };
+}
+
 /** @param {Mcq[]} mcqs */
 export function filterPool(mcqs, chapterFocus, difficulty) {
+  /** @param {Mcq} q */
+  const chapterDifficulty = (q) => {
+    // Keep all chapters mapped by question number ranges.
+    const n = q.questionNumberInChapter;
+    if (n <= 10) return "easy";
+    if (n <= 20) return "medium";
+    if (n <= 30) return "hard";
+    return "coding";
+  };
+
+  /** @param {Mcq} q */
+  const isCodingRelated = (q) => {
+    if (chapterDifficulty(q) === "coding") return true;
+    // Fallback: treat fenced code questions as coding-related.
+    return /```/.test(q.stem);
+  };
+
   let pool = mcqs.slice();
   if (chapterFocus) {
     const n = parseInt(chapterFocus, 10);
     pool = pool.filter((q) => q.chapter === n);
   }
   if (difficulty !== "all") {
-    pool = pool.filter((q) => q.difficulty === difficulty);
+    if (difficulty === "coding") {
+      pool = pool.filter((q) => isCodingRelated(q));
+    } else {
+      pool = pool.filter((q) => chapterDifficulty(q) === difficulty);
+    }
   }
   return pool;
 }

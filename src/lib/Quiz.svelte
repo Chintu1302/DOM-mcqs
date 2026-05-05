@@ -3,6 +3,7 @@
   import {
     keyOf,
     shuffle,
+    shuffleQuestionOptions,
     filterPool,
     stemToHtml,
     gradeQuiz,
@@ -74,7 +75,11 @@
       selections = {};
       return;
     }
-    activePool = shuffle(base);
+    const keepChapterDifficultyOrder = Boolean(chapterFocus) && difficulty !== "all";
+    const ordered = keepChapterDifficultyOrder
+      ? base.slice().sort((a, b) => a.questionNumberInChapter - b.questionNumberInChapter)
+      : shuffle(base);
+    activePool = ordered.map((q) => shuffleQuestionOptions(q));
     selections = {};
   }
 
@@ -158,7 +163,16 @@
                   checked={selections[k] === optIdx}
                   onchange={() => pick(k, optIdx)}
                 />
-                <span>{@html "<strong>" + letter + ".</strong> " + stemToHtml(q.options[optIdx])}</span>
+                <span class="opt-body">
+                  <span>{@html "<strong>" + letter + ".</strong> " + stemToHtml(q.options[optIdx])}</span>
+                  {#if results}
+                    {#if (Array.isArray(q.correctIndices) ? q.correctIndices : [q.correctIndices]).includes(optIdx)}
+                      <span class="option-feedback correct">✓ Correct option</span>
+                    {:else if selections[k] === optIdx}
+                      <span class="option-feedback wrong">✗ Your answer is incorrect</span>
+                    {/if}
+                  {/if}
+                </span>
               </label>
             {/each}
           </fieldset>
@@ -364,6 +378,12 @@
     font-size: 0.88rem;
   }
 
+  .opt-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
   .opt span :global(pre),
   .opt span :global(code) {
     display: block;
@@ -373,6 +393,19 @@
     border-radius: 6px;
     font-size: 0.82rem;
     margin: 0.35rem 0 0;
+  }
+
+  .option-feedback {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .option-feedback.correct {
+    color: var(--good);
+  }
+
+  .option-feedback.wrong {
+    color: var(--bad);
   }
 
   .actions {
